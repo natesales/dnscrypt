@@ -18,6 +18,7 @@ import (
 type Client struct {
 	Net     string        // protocol (can be "udp" or "tcp", by default - "udp")
 	Timeout time.Duration // read/write timeout
+	Dialer  *net.Dialer   // custom dialer
 
 	// UDPSize is the maximum size of a DNS response (or query) this client can
 	// sent or receive. If not set, we use dns.MinMsgSize by default.
@@ -94,7 +95,7 @@ func (c *Client) Exchange(m *dns.Msg, resolverInfo *ResolverInfo) (resp *dns.Msg
 		network = "tcp"
 	}
 
-	conn, err := net.Dial(network, resolverInfo.ServerAddress)
+	conn, err := c.Dialer.Dial(network, resolverInfo.ServerAddress)
 	if err != nil {
 		return nil, fmt.Errorf("dialing: %w", err)
 	}
